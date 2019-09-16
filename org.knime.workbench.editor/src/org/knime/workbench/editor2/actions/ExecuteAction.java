@@ -47,6 +47,10 @@
  */
 package org.knime.workbench.editor2.actions;
 
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.commands.IHandler;
+import org.eclipse.core.commands.IHandlerListener;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.workflow.NodeID;
@@ -62,7 +66,7 @@ import org.knime.workbench.editor2.editparts.NodeContainerEditPart;
  *
  * @author Florian Georg, University of Konstanz
  */
-public class ExecuteAction extends AbstractNodeAction {
+public class ExecuteAction extends AbstractNodeAction implements IHandler {
 
     private static final NodeLogger LOGGER = NodeLogger
             .getLogger(ExecuteAction.class);
@@ -178,5 +182,32 @@ public class ExecuteAction extends AbstractNodeAction {
     @Override
     protected boolean canHandleWorkflowManagerUI() {
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addHandlerListener(final IHandlerListener handlerListener) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object execute(final ExecutionEvent event) throws ExecutionException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void removeHandlerListener(final IHandlerListener handlerListener) {
+        // TODO Auto-generated method stub
+
     }
 }
