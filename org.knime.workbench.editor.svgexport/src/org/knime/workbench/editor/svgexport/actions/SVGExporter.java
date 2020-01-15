@@ -52,6 +52,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.HashSet;
@@ -106,8 +107,13 @@ public final class SVGExporter {
      * @throws SVGExportException Wraps potential I/O or batik exceptions.
      */
     public static void export(final WorkflowEditor editor, final File file) throws SVGExportException {
-        try {
-            exportInternal(editor, file);
+        try (OutputStream out = new FileOutputStream(file)) {
+            final GraphicalViewer viewer = editor.getViewer();
+            if (viewer == null) {
+                NodeLogger.getLogger(SVGExporter.class).debug("Not saving SVG to workflow (viewer is null)");
+                return;
+            }
+            exportInternal(viewer, out);
         } catch (IOException ioe) {
             throw new SVGExportException(ioe);
         } catch (TranscoderException te) {
@@ -115,14 +121,19 @@ public final class SVGExporter {
         }
     }
 
-    private static void exportInternal(final WorkflowEditor editor, final File file)
+    public static void export(final GraphicalViewer viewer, final OutputStream out) throws SVGExportException {
+        try {
+            exportInternal(viewer, out);
+        } catch (IOException ioe) {
+            throw new SVGExportException(ioe);
+        } catch (TranscoderException te) {
+            throw new SVGExportException(te);
+        }
+    }
+
+    private static void exportInternal(final GraphicalViewer viewer, final OutputStream output)
             throws IOException, TranscoderException {
         // Obtain WorkflowRootEditPart, which holds all the nodes
-        final GraphicalViewer viewer = editor.getViewer();
-        if (viewer == null) {
-            NodeLogger.getLogger(SVGExporter.class).debug("Not saving SVG to workflow (viewer is null)");
-            return;
-        }
         WorkflowRootEditPart part = (WorkflowRootEditPart)viewer.getRootEditPart().getChildren().get(0);
         // export workflow (unfortunately without connections)
         IFigure figure = part.getFigure();
@@ -178,7 +189,7 @@ public final class SVGExporter {
             ep.getFigure().paint(svgExporter);
         }
         SVGTranscoder transcoder = new SVGTranscoder();
-        Writer fileOut =  new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+        Writer fileOut =  new BufferedWriter(new OutputStreamWriter(output, "UTF-8"));
         fileOut.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         TranscoderOutput out = new TranscoderOutput(fileOut);
         Document doc = svgExporter.getDocument();

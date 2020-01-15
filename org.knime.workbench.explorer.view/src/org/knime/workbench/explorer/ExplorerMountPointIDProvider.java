@@ -223,4 +223,12 @@ public class ExplorerMountPointIDProvider implements MountPointIDProvider {
         return AbstractExplorerFileStore.isWorkflow(store);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public URI getDefaultDirectory(final URI uri) {
+        return null;
+    }
+
 }

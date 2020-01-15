@@ -17,5 +17,11 @@
          </action>
       </actionSet>
    </extension>
+   <extension
+         point="org.knime.core.ui.util.AWTWorkflowRenderer">
+      <AWTWorkflowRenderer
+            AWTWorkflowRenderer="org.knime.workbench.editor.svgexport.AWTWorkflowRendererImpl">
+      </AWTWorkflowRenderer>
+   </extension>
 
 </fragment>

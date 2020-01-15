@@ -55,6 +55,7 @@ import org.eclipse.draw2d.IFigure;
 import org.eclipse.draw2d.PolylineConnection;
 import org.eclipse.draw2d.geometry.Point;
 import org.eclipse.gef.DefaultEditDomain;
+import org.eclipse.gef.EditDomain;
 import org.eclipse.gef.EditPart;
 import org.eclipse.gef.EditPolicy;
 import org.eclipse.gef.Request;
@@ -321,8 +322,11 @@ public class ConnectionContainerEditPart extends AbstractConnectionEditPart
     private EditorUIInformation getCurrentEditorSettings() {
         //use the workflow editor (instead of the WorkflowManager) to get the settings from, otherwise
         //the settings won't get inherited from the parent workflow (if the displayed workflow is a metanode)
-        return ((WorkflowEditor)((DefaultEditDomain)getViewer().getEditDomain()).getEditorPart())
-            .getCurrentEditorSettings();
+        EditDomain editDomain = getViewer().getEditDomain();
+        if (editDomain == null) {
+            return EditorUIInformation.builder().build();
+        }
+        return ((WorkflowEditor)((DefaultEditDomain)editDomain).getEditorPart()).getCurrentEditorSettings();
     }
 
     /** {@inheritDoc} */
