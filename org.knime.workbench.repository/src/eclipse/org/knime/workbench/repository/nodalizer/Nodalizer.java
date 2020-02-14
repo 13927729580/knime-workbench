@@ -669,7 +669,33 @@ public class Nodalizer implements IApplication {
             }
             return dynamicPorts;
         }
-        return Collections.emptyList();
+        // HACK: There's a bug in AP which allows nodes with dynamic ports to not define them in the factory XML
+        else {
+            boolean readOutports = xmlTag.equals("dynOutPort");
+            List<DynamicPortGroup> dynamicPorts = new ArrayList<>();
+            for (final String groupName : portConfigs.getPortGroupNames()) {
+                try {
+                    PortGroupConfiguration pgc = portConfigs.getGroup(groupName);
+                    if (!(pgc instanceof ConfigurablePortGroup) || readOutports != pgc.definesOutputPorts()) {
+                        continue;
+                    }
+
+                    ConfigurablePortGroup cpg = (ConfigurablePortGroup) pgc;
+                    PortType[] types = cpg.getSupportedPortTypes();
+                    DynamicPortType[] dynamicPortTypes = new DynamicPortType[types.length];
+                    for (int i = 0; i < dynamicPortTypes.length; i++) {
+                        PortType type = types[i];
+                        dynamicPortTypes[i] = new DynamicPortType(type.getPortObjectClass().getCanonicalName(),
+                            type.getName(), getColorAsHex(type.getColor()));
+                    }
+                    DynamicPortGroup dpg = new DynamicPortGroup(groupName, "", dynamicPortTypes);
+                    dynamicPorts.add(dpg);
+                } catch (final NoSuchElementException exception) {
+                    LOGGER.warn("No dynamic port group, " + groupName + ", for " + nodeFactoryName);
+                }
+            }
+            return dynamicPorts;
+        }
     }
 
     private static void parseHTML(final Document nodeHTML, final NodeInfo nodeInfo, final String interactiveViewName) {
