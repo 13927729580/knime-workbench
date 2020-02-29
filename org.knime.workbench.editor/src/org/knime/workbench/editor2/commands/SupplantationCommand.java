@@ -54,6 +54,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.ui.PlatformUI;
 import org.knime.core.node.NodeLogger;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.flowvariable.FlowVariablePortObject;
@@ -183,6 +185,18 @@ public class SupplantationCommand extends AbstractKNIMECommand {
             final ConnectionContainer targetCC = wm.getConnection(m_edgeTargetId);
 
             if (!ReplaceHelper.executedStateAllowsReplace(wm, null, targetCC)) {
+                returnNodeToOriginalLocation();
+
+                return;
+            }
+
+            if (!wm.canRemoveConnection(targetCC)) {
+                MessageDialog.openInformation(PlatformUI.getWorkbench().getDisplay().getActiveShell(),
+                                              "Unable to complete",
+                                              "The drop action cannot be completed, likely because a node "
+                                                  + "being affected is in a paused, or waiting to be executed, "
+                                                  + "state.");
+
                 returnNodeToOriginalLocation();
 
                 return;
